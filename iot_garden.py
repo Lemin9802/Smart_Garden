@@ -10,23 +10,12 @@ import board
 import threading
 from datetime import datetime
 
-# Firebase configuration
-firebase_url = 'https://smartgarden-an-default-rtdb.asia-southeast1.firebasedatabase.app/'
-cred = credentials.Certificate({
-    "type": "service_account",
-    "project_id": "smartgarden-an",
-    "private_key_id": "9cdd5794583d95a9c648787f1dc84a816d6c4e9d",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDJW40TYcanmzjX\npm/3HN8UBElvcv03rQo0isulJGpDbXoKu+dwJx+GU/9Ra8O6FUuW/MYIG4k2Fazc\nnhVJl/uKfeidpz452hRrS9HfG+DkVpU2e0QxrFHBcJUzu2F4kqL7dnrBYAVyN1V6\npFUpOtv+yWJVay14tajkOZMOQ2pFJjy6UE5lmyxT9hHsBabIShIX6n1ssVMcgww+\nZPtU+NTGPMwngEbw+MFoV2Qj/aDkfC0opX03BFNUSykUOFIBmDEtOsXbNuNVEDsI\n8AOiQrS5U4Poa9JyReouFWn5rrD7BiEC1saa1eV1l1lCLsYs5qTD7oLUNTDUMY1X\nc0YcRtfBAgMBAAECggEANUBVCu8szl6qpb2Kltu3019e3G6YsQS+Ui7ytHXw9Gwb\nfoM7Ldnq6GeGek35sVi4aPHonXRK0VbiJGZaUuAy0emCf08fkcUu6UFf+5Uv4LNV\nOtdWrZxY8sOHcer4WB7Po5kt1b5DMnWX0ZtsOj8qtzMjIlv55paEV/cyAO+rRyXh\nA7DVoS65pSc1HMFIXPo4MteWnncS7M0e/MUgD00DhnHbYt0K339+erpWTQ76AK1B\nSSTNjcwo75tQXPJuYxIJIolgOxLmCetxk3r1iLQaxepLScYBo3aVfBHa4C+I5Fcv\n+G8dAZE7d+xfvn0JUNocjDs1Ni06FbekLKPua8g9EQKBgQD5Wbue9shI9+1ybIOZ\njFtQxk1M+zrrT3y76iUw3AS9dLP3YPDIuEcCxJmT57Vp64xaC+IJTvq2F6DBYmaG\nIWzRFKMtzZwz0moJuVnTJIACr1Y+SvXYE3Fp0zwQENOgJLZK/W0DvoSYF21S1kDu\nsFhBRh34wegvShViOZZF6kJw6wKBgQDOui4ZsNACrKrTySWw2zy5rn5EnmYE9Zzq\nYrj0af1xfBygPdb0uxx5xuID4bD65ETum+A+orWtmyIaxEVPfKuFIbZz4330n6Lk\nObf4EsyCvnerxBS9FMw3Sn5DXpHJ8PTYkTaiajK95qUJoPkC0w9XwjwL2l+sAU+Z\ntoc6dDVPAwKBgESjJrpDRC6R0JLGvBLwR9KcQ3sFTNqpLrSrZ0Fjzwo3rbJSxPT7\nhNCGPaAxEAbwB9phmv7k9q5ZIq8Y3w/c8486FxDsoCrDqNy0YL12NqaGjT7oc3Pf\nJkDzHH1vpFFYybUqvW9iai1ThYxf3c/WSvTs0CNBfSBHTEuVfoAQU+mxAoGAeAuj\ng6WqVTNBi/SNn5LgQ48xodU9tvmN4onrj3sRAtqooODoN3uEgK7eRpTDuh3ebZU0\n9gp0Z9jjSBnbidoCnC/EjK15Uhl1dQSTcUoxWmcShTs7M8WlBSKMCcEb9eGnvS8u\nQ8hZqO8LvXitwVcg3LxdNCDeV7r3J3LYOjiLUFMCgYBNzNaC29dtoTINpn78FreC\n4tdHSn1S+8sxYGfDTGNjD8J8qElKBPAzFSXbqFSDDgHfFW6NlAawbe5kDmznuTzk\nL4VOhNVkj1O8NtRMbYd7UilRd9FhNrQxiTvhmJzvxj2xPX7dN401OJiPS/61PdmK\n5V45BgVTL+Z1xDKtpB4SrA==\n-----END PRIVATE KEY-----\n",
-    "client_email": "firebase-adminsdk-7sfij@smartgarden-an.iam.gserviceaccount.com",
-    "client_id": "108343873320027577640",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-7sfij%40smartgarden-an.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-})
+firebase_key_path = '/home/nhatphanh/project/firebase-key.json'
+
+# Initialize Firebase
+cred = credentials.Certificate(firebase_key_path)
 initialize_app(cred, {
-    'databaseURL': firebase_url
+    'databaseURL': 'https://smartgarden-an-default-rtdb.asia-southeast1.firebasedatabase.app/'
 })
 
 # Initialize Firebase Realtime Database reference
@@ -86,7 +75,18 @@ def get_sensor_data_from_db():
     return all_data_list
 
 def read_soil_moisture():
-    return grovepi.analogRead(moisture_sensor)
+    try:
+        value = grovepi.analogRead(moisture_sensor)
+        # Kiểm tra giá trị trả về là một số nguyên và hợp lệ
+        if isinstance(value, int):
+            return value
+        else:
+            print("Giá trị đọc từ cảm biến không hợp lệ")
+            return None
+    except IOError:
+        print("Lỗi khi đọc giá trị từ cảm biến độ ẩm đất")
+        return None
+
 
 def update_dashboard():
     while True:
@@ -119,7 +119,7 @@ def update_graphs(open_gate, close_gate):
     humidities = [item['humidity'] for item in data]
     soil_moistures = [item['soil_moisture'] for item in data]
     timestamps = [item['timestamp'] for item in data]
-    
+
     temperature_trace = go.Scatter(x=timestamps, y=temperatures, mode='lines+markers', name='Temperature')
     humidity_trace = go.Scatter(x=timestamps, y=humidities, mode='lines+markers', name='Humidity')
     soil_moisture_trace = go.Scatter(x=timestamps, y=soil_moistures, mode='lines+markers', name='Soil Moisture')
